@@ -1,0 +1,8 @@
+.corral.plt
+.erlang.mk/
+corral.d
+deps/
+ebin/*.beam
+ebin/test
+logs/
+test/*.beam

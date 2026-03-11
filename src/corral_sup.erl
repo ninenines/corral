@@ -1,0 +1,40 @@
+%% Copyright (c) Loïc Hoguin <essen@ninenines.eu>
+%%
+%% Permission to use, copy, modify, and/or distribute this software for any
+%% purpose with or without fee is hereby granted, provided that the above
+%% copyright notice and this permission notice appear in all copies.
+%%
+%% THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+%% WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+%% MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+%% ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+%% WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+%% ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+%% OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+-module(corral_sup).
+-behaviour(supervisor).
+
+-export([start_link/0]).
+-export([start_conns_sup/3]).
+-export([stop_conns_sup/1]).
+-export([init/1]).
+
+start_link() ->
+	supervisor:start_link({local, ?MODULE}, ?MODULE, []).
+
+start_conns_sup(Ref, ConnType, Protocol) ->
+	supervisor:start_child(?MODULE, #{
+		id => Ref,
+		start => {corral_conns_sup, start_link, [Ref, ConnType, Protocol]},
+		type => supervisor
+	}).
+
+stop_conns_sup(Ref) ->
+	_ = supervisor:terminate_child(?MODULE, Ref),
+	supervisor:delete_child(?MODULE, Ref).
+
+init([]) ->
+	Flags = #{},
+	Procs = [],
+	{ok, {Flags, Procs}}.

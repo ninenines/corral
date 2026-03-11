@@ -1,0 +1,22 @@
+## Use workflows from ninenines/ci.erlang.mk to test Corral.
+
+name: Check Corral
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  schedule:
+      ## Every Monday at 6am.
+      - cron: 0 6 * * 1
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Check all backends
+    if: ${{ !cancelled() }}
+    uses: ninenines/ci.erlang.mk/.github/workflows/ci.yaml@master
